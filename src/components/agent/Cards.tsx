@@ -1,6 +1,6 @@
 /** @doc Interactive cards inside agent turns: images/videos, video proposal, question, approval, task and plan. */
 import { useEffect, useRef, useState } from "react";
-import { Download, Film, Lock, Check, ListTodo, ShieldCheck, Sparkles, Loader2, Circle, CheckCircle2, RotateCw } from "lucide-react";
+import { Download, FileText, Film, Lock, Check, ListTodo, ShieldCheck, Sparkles, Loader2, Circle, CheckCircle2, RotateCw } from "lucide-react";
 import { agentApi, mediaStatus, AgentApiError, type AgentRequest, type MediaModelInfo } from "@/lib/agentsky/client";
 import type { MediaPayload, VideoProposal } from "@/lib/agentsky/transcript";
 
@@ -344,5 +344,41 @@ export function PlanCard({ title, steps, lang }: { title: string; steps: { title
         ))}
       </div>
     </div>
+  );
+}
+
+/* ---------------- Files ---------------- */
+
+function formatSize(n?: number) {
+  if (!n) return "";
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+export function FileCard({ name, url, content, mime, size, lang }: { name: string; url?: string; content?: string; mime?: string; size?: number; lang: Lang }) {
+  const ext = (name.split(".").pop() || "file").slice(0, 4).toUpperCase();
+  const download = () => {
+    if (url) {
+      window.open(url, "_blank", "noopener");
+      return;
+    }
+    const blob = new Blob([content ?? ""], { type: mime || "text/plain;charset=utf-8" });
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(href), 1000);
+  };
+  return (
+    <button type="button" onClick={download} className="ag-file ag-fade-in" title={tr(lang, "Download", "تحميل")}>
+      <span className="ag-file__icon"><FileText size={16} /><span className="ag-file__ext">{ext}</span></span>
+      <span className="min-w-0 flex-1 text-start">
+        <span className="block truncate text-[13.5px] font-medium">{name}</span>
+        <span className="block text-[12px] text-[color:var(--ag-muted)]">{formatSize(size) || tr(lang, "File", "ملف")}</span>
+      </span>
+      <Download size={15} className="flex-none text-[color:var(--ag-muted)]" />
+    </button>
   );
 }
