@@ -40,7 +40,7 @@ export function AgentsPage() {
               return <li key={a.id} className="flex items-center gap-4 px-4 py-4 transition-colors hover:bg-muted/40" data-agent-color={a.color}>
                 <AgentOrb size={44} color={a.color} state={active ? "tool" : "idle"} />
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2"><h2 className="truncate font-medium">{a.name}</h2>{a.isDefault && <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{ar ? "الأساسي" : "Default"}</span>}{active > 0 && <span className="text-[11px] text-primary">{ar ? `${active} شغالة` : `${active} running`}</span>}</div>
+                  <div className="flex items-center gap-2"><h2 className="truncate font-medium">{a.name}</h2>{a.isDefault && <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{ar ? "الأساسي" : "Default"}</span>}{a.mediaOnly && <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{ar ? "صور وفيديو" : "Images & video"}</span>}{active > 0 && <span className="text-[11px] text-primary">{ar ? `${active} شغالة` : `${active} running`}</span>}</div>
                   <p className="truncate text-sm text-muted-foreground">{a.description || (ar ? "وكيل عام" : "General agent")}</p>
                 </div>
                 {!a.isDefault && !a.isTemplate && <Button variant="ghost" size="icon-sm" title={ar ? "حذف" : "Delete"} aria-label={ar ? "حذف الوكيل" : "Delete agent"} disabled={deleting === a.id} onClick={async () => {

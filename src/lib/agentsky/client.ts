@@ -12,6 +12,7 @@ export type AgentInfo = {
   prompt: string;
   isDefault: boolean;
   isTemplate?: boolean;
+  mediaOnly?: boolean;
   createdAt: string;
 };
 
