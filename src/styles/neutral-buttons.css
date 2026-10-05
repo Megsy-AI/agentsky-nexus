@@ -1,0 +1,33 @@
+/* Final layer: neutral shadcn presentation for current and legacy buttons. */
+:root {
+  --button-solid: oklch(.205 0 0);
+  --button-solid-ink: oklch(.985 0 0);
+  --button-surface: oklch(.96 0 0);
+  --button-ink: oklch(.205 0 0);
+  --button-line: oklch(.89 0 0);
+}
+html.dark {
+  --button-solid: oklch(.92 0 0);
+  --button-solid-ink: oklch(.205 0 0);
+  --button-surface: oklch(.25 0 0);
+  --button-ink: oklch(.96 0 0);
+  --button-line: oklch(.35 0 0);
+}
+html body button, html body a.btn-sunset, html body [role="button"].btn-sunset {
+  background: var(--button-surface) !important;
+  color: var(--button-ink) !important;
+  border-color: var(--button-line) !important;
+  box-shadow: none !important;
+  border-radius: 6px;
+  text-shadow: none !important;
+}
+html body button[data-variant="default"], html body button[data-variant="neutral"], html body button[data-variant="solid"], html body .btn-sunset {
+  background: var(--button-solid) !important;
+  color: var(--button-solid-ink) !important;
+}
+html body button[data-variant="ghost"], html body button[data-variant="link"] { background: transparent !important; }
+html body button[data-variant="outline"] { background: transparent !important; border: 1px solid var(--button-line); }
+html body button:hover:not(:disabled) { filter: none !important; opacity: .85; }
+html body button::before, html body button::after, html body .btn-sunset::before, html body .btn-sunset::after { background: none !important; box-shadow: none !important; }
+html body button :where(span, svg) { color: inherit !important; background-image: none !important; -webkit-text-fill-color: currentColor !important; }
+html body button:focus-visible { outline: 2px solid var(--button-ink); outline-offset: 3px; }

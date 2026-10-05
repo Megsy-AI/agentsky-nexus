@@ -31,7 +31,6 @@ export default function ReminderWatcher() {
         toast(title, {
           description: n.body ?? undefined,
           duration: n.kind === "alarm" ? 60_000 : 10_000,
-          action: { label: "Tasks", onClick: () => navigate("/tasks") },
         });
         try {
           if ("Notification" in window && Notification.permission === "granted") {

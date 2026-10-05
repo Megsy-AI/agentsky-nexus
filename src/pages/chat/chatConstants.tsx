@@ -137,6 +137,7 @@ export interface Message {
   modelLabel?: string;
   /** AgentSky session state rendered inside the original Megsy transcript. */
   agentSkySessionId?: string;
+  agentBuilder?: boolean;
   agentSkyCards?: AgentSkyCard[];
   agentSkyRequests?: AgentRequest[];
   agentSkyAgent?: { id: string; name: string; color: AgentColor };

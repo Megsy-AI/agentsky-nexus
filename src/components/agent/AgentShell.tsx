@@ -10,7 +10,7 @@ export function AgentShell({ lang, title, actions, children }: { lang: "en" | "a
   const [collapsed] = useSidebarCollapsed();
   const nav = useNavigate();
   const newChat = () => nav("/chat");
-  const select = (id: string) => nav(`/chat?conv=${encodeURIComponent(id)}`);
+  const select = (id: string) => nav(`/chat?c=${encodeURIComponent(id)}`);
   return (
     <div className="flex h-[100dvh] w-full overflow-hidden bg-background text-foreground" dir={lang === "ar" ? "rtl" : "ltr"}>
       <aside className={`relative hidden shrink-0 overflow-hidden transition-[width] duration-300 md:flex ${collapsed ? "w-[60px]" : "w-[280px]"}`}>

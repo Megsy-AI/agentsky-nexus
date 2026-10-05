@@ -1,5 +1,6 @@
 /** @doc Main chat workspace — all modes, all models, attachments, agents and the composer live here. */
 import SEOHead from "@/components/common/SEOHead";
+import { AGENT_BUILDER_START } from "@/lib/agentsky/agentBuilder";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useState, useRef, useEffect, useCallback, Suspense, lazy, type FormEvent } from "react";
@@ -1571,13 +1572,15 @@ const ChatPage = () => {
         [...messages].reverse().find((message) => message.agentSkySessionId)?.agentSkySessionId;
       const requestedAgentId = new URLSearchParams(location.search).get("agent") || undefined;
       const lastAgentId = [...messages].reverse().find((message) => message.agentSkyAgent)?.agentSkyAgent?.id;
+      const buildingAgent = !requestedAgentId && (new URLSearchParams(location.search).get("create-agent") === "1" || messages.some((message) => message.agentBuilder));
       try {
         await runAgentSkyTurn({
           text,
+          buildingAgent,
           userMsg,
           localTurnId,
           sessionId: (requestedAgentId && lastAgentId && requestedAgentId !== lastAgentId) || messages.some((message) => message.agentSkyAgent?.id === lastAgentId && message.agentSkyAgent?.name === "higgsfield") ? undefined : previousSessionId,
-          agentId: requestedAgentId,
+          agentId: buildingAgent ? undefined : requestedAgentId,
           hasPriorTurns: messages.some((message) => message.role === "assistant" && Boolean(message.agentSkySessionId)),
           lang: getUserLang() === "ar-eg" ? "ar" : "en",
           images,
@@ -2467,6 +2470,21 @@ const ChatPage = () => {
       queuedAgentMessagesRef.current = [];
     },
   });
+
+  const builderStartedRef = useRef(false);
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("create-agent") !== "1") { builderStartedRef.current = false; return; }
+    if (builderStartedRef.current || !chatUserId) return;
+    // Reopened builder conversations continue their discovery instead of restarting.
+    if (params.get("c")) { builderStartedRef.current = true; return; }
+    builderStartedRef.current = true;
+    handleNewChat();
+    const timer = window.setTimeout(() => void sendWithTextRef.current?.(AGENT_BUILDER_START), 100);
+    return () => { window.clearTimeout(timer); builderStartedRef.current = false; };
+    // The reset function is recreated each render; only route/user changes start discovery.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search, chatUserId]);
 
   // Keep the open conversation + mode in the URL so reload restores the exact
   // place, and Back/Forward move between conversations.
