@@ -1572,14 +1572,15 @@ const ChatPage = () => {
         [...messages].reverse().find((message) => message.agentSkySessionId)?.agentSkySessionId;
       const requestedAgentId = new URLSearchParams(location.search).get("agent") || undefined;
       const lastAgentId = [...messages].reverse().find((message) => message.agentSkyAgent)?.agentSkyAgent?.id;
+      const buildingAgent = !requestedAgentId && (new URLSearchParams(location.search).get("create-agent") === "1" || messages.some((message) => message.agentBuilder));
       try {
         await runAgentSkyTurn({
           text,
-          buildingAgent: new URLSearchParams(location.search).get("create-agent") === "1" || messages.some((message) => message.agentBuilder),
+          buildingAgent,
           userMsg,
           localTurnId,
           sessionId: (requestedAgentId && lastAgentId && requestedAgentId !== lastAgentId) || messages.some((message) => message.agentSkyAgent?.id === lastAgentId && message.agentSkyAgent?.name === "higgsfield") ? undefined : previousSessionId,
-          agentId: new URLSearchParams(location.search).get("create-agent") === "1" || messages.some((message) => message.agentBuilder) ? undefined : requestedAgentId,
+          agentId: buildingAgent ? undefined : requestedAgentId,
           hasPriorTurns: messages.some((message) => message.role === "assistant" && Boolean(message.agentSkySessionId)),
           lang: getUserLang() === "ar-eg" ? "ar" : "en",
           images,
