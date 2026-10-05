@@ -4,7 +4,7 @@ import { useUserLang } from "@/lib/authI18n";
 import { useWorkspaceStore } from "@/lib/agentsky/store";
 import type { Message } from "../chatConstants";
 import { Tool, ToolContent, ToolHeader } from "@/components/ai-elements/tool";
-import { ApprovalCard, MediaCard, PlanCard, QuestionCard, TaskCard, VideoProposalCard } from "@/components/agent/Cards";
+import { ApprovalCard, FileCard, MediaCard, PlanCard, QuestionCard, TaskCard, VideoProposalCard } from "@/components/agent/Cards";
 
 const toolState = (state: "running" | "done" | "error") =>
   state === "running" ? "input-available" as const : state === "error" ? "output-error" as const : "output-available" as const;
@@ -28,6 +28,14 @@ export default function AgentSkyBlocks({ message, onSend }: { message: Message; 
           </ToolContent>
         </Tool>
       ))}
+      {cards.some((c) => c.kind === "file") && (
+        <div className="ag-files">
+          <div className="ag-files__title">{lang === "ar" ? "الملفات" : "Files"}</div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {cards.map((card) => card.kind === "file" ? <FileCard key={card.id} name={card.name} url={card.url} content={card.content} mime={card.mime} size={card.size} lang={lang} /> : null)}
+          </div>
+        </div>
+      )}
       {cards.map((card) => {
         if (card.kind === "media") return <MediaCard key={card.id} media={card.media} lang={lang} />;
         if (card.kind === "video") return <VideoProposalCard key={card.id} proposal={card.proposal} models={workspace.models} tier={workspace.tier} lang={lang} onUpgrade={() => navigate("/pricing")} />;

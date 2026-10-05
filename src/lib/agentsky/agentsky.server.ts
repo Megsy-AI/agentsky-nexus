@@ -20,17 +20,43 @@ export class AgentSkyError extends Error {
   }
 }
 
-function key(): string {
+/** Keys come from the `agentsky_keys` pool (filled from the Telegram bot), least-recently-used
+ *  first; AGENTSKY_API_KEY stays as a fallback when the pool is empty. */
+type PooledKey = { id: string | null; value: string };
+async function takeKey(): Promise<PooledKey> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await (supabaseAdmin as any).rpc("take_agentsky_key");
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row?.key_value) return { id: row.id, value: row.key_value };
+  } catch {
+    /* fall back to env */
+  }
   const k = process.env.AGENTSKY_API_KEY;
   if (!k) throw new AgentSkyError(500, "not_configured", "AgentSky is not configured");
-  return k;
+  return { id: null, value: k };
 }
 
-async function call<T = any>(base: string, path: string, init: RequestInit = {}): Promise<T> {
+async function reportKey(k: PooledKey, status: number, message: string) {
+  if (!k.id) return;
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const dead = status === 401 || status === 402 || status === 403;
+    await (supabaseAdmin as any)
+      .from("agentsky_keys")
+      .update({ last_error: `${status} ${message}`.slice(0, 300), ...(dead ? { active: false } : {}) })
+      .eq("id", k.id);
+  } catch {
+    /* best effort */
+  }
+}
+
+async function call<T = any>(base: string, path: string, init: RequestInit = {}, attempt = 0): Promise<T> {
+  const k = await takeKey();
   const res = await fetch(base + path, {
     ...init,
     headers: {
-      Authorization: `Bearer ${key()}`,
+      Authorization: `Bearer ${k.value}`,
       "Content-Type": "application/json",
       ...(init.headers as Record<string, string> | undefined),
     },
@@ -44,17 +70,28 @@ async function call<T = any>(base: string, path: string, init: RequestInit = {})
   }
   if (!res.ok) {
     const e = body?.error ?? {};
+    if ([401, 402, 403, 429].includes(res.status) && k.id) {
+      await reportKey(k, res.status, e.message || "");
+      if (attempt < 2) return call<T>(base, path, init, attempt + 1);
+    }
     throw new AgentSkyError(res.status, e.code || "error", e.message || `AgentSky ${res.status}`);
   }
   return body as T;
 }
 
+/** Checks a key against the provider before it is saved. */
+export async function validateAgentSkyKey(value: string): Promise<boolean> {
+  const res = await fetch(`${API}/agents`, { headers: { Authorization: `Bearer ${value}` } });
+  return res.ok;
+}
+
 export const api = <T = any>(path: string, init?: RequestInit) => call<T>(API, path, init);
 export const gateway = <T = any>(path: string, init?: RequestInit) => call<T>(GATEWAY, path, init);
 
-export function streamSession(sessionId: string, signal: AbortSignal) {
+export async function streamSession(sessionId: string, signal: AbortSignal) {
+  const k = await takeKey();
   return fetch(`${API}/sessions/${encodeURIComponent(sessionId)}/stream`, {
-    headers: { Authorization: `Bearer ${key()}`, Accept: "text/event-stream" },
+    headers: { Authorization: `Bearer ${k.value}`, Accept: "text/event-stream" },
     signal,
   });
 }
@@ -156,6 +193,7 @@ Tools from the "megsy" MCP server are your ONLY way to make media and talk to th
 - generate_video: whenever the user wants a video or animation. It shows the user a card; the video renders there.
 - ask_user: when you truly need the user to choose between options before continuing. Then stop and wait.
 - create_task: when the user asks to be reminded, to plan, or when a goal needs follow-up steps. Assign tasks yourself.
+- share_file: whenever you created files for the user, deliver every one of them with share_file before finishing. Never end a job that produced files without sharing them.
 - update_plan: for multi-step work, publish a short plan of steps and update their status as you go.
 
 For big jobs, split work across helper sub-agents and run them in parallel, then merge results.

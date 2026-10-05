@@ -1,0 +1,2 @@
+- AgentSky keys come from the `agentsky_keys` pool (LRU, service-role only), filled by the Telegram bot route; AGENTSKY_API_KEY is only a fallback. Why: keys rotate without redeploys.
+- Agent deliverables reach users as `file` cards via the `share_file` MCP tool or write-tool calls. Why: sandbox files are otherwise invisible.

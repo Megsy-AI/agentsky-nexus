@@ -19,7 +19,12 @@ export type Card =
   | { kind: "video"; id: string; proposal: VideoProposal }
   | { kind: "question"; id: string; question: string; options: string[]; allowFreeText: boolean; answered: boolean }
   | { kind: "task"; id: string; title: string; dueAt: string | null; taskKind: string }
-  | { kind: "plan"; id: string; title: string; steps: { title: string; status: string }[] };
+  | { kind: "plan"; id: string; title: string; steps: { title: string; status: string }[] }
+  | { kind: "file"; id: string; name: string; url?: string; content?: string; mime?: string; size?: number };
+
+/** Deliverable files the agent writes in its workspace and the user should be able to download. */
+const DELIVERABLE = /\.(md|txt|csv|tsv|json|html?|xml|ya?ml|py|js|ts|tsx|jsx|css|sql|sh|svg)$/i;
+const MAX_INLINE = 400_000;
 
 export type UserTurn = { type: "user"; id: string; text: string; images: string[]; at?: string };
 export type AgentTurn = {
@@ -316,7 +321,7 @@ export function buildTranscript(events: RawEvent[], lang: Lang, running: boolean
         if (!textByStream.has(f.stream)) textStreams.push(f.stream);
         textByStream.set(f.stream, (textByStream.get(f.stream) || "") + f.text);
         // narration ends any open thought
-        for (const s of t.steps) if (s.kind === "thought" && s.status === "active") s.status = "done";
+        for (const s of t.steps) if (s.kind === "thought" && s.status === "active") { s.status = "done"; s.label = reasoningTitle(s.detail || "", lang, true); }
         flushText();
         break;
       }
@@ -334,7 +339,7 @@ export function buildTranscript(events: RawEvent[], lang: Lang, running: boolean
       }
       case "call": {
         const t = agent();
-        for (const s of t.steps) if (s.kind === "thought" && s.status === "active") s.status = "done";
+        for (const s of t.steps) if (s.kind === "thought" && s.status === "active") { s.status = "done"; s.label = reasoningTitle(s.detail || "", lang, true); }
         const d = describeTool(f.name, f.args, lang);
         const s: Step = { id: f.id, kind: d.kind, label: d.label, status: "active" };
         callSteps.set(f.callId, s);
@@ -351,6 +356,17 @@ export function buildTranscript(events: RawEvent[], lang: Lang, running: boolean
           });
         if (n.includes("create_task"))
           t.cards.push({ kind: "task", id: f.callId, title: String(f.args.title || ""), dueAt: f.args.due_at || null, taskKind: String(f.args.kind || "task") });
+        if (d.kind === "edit" && !n.includes("edit") && !n.includes("patch")) {
+          const path = String(f.args.path || f.args.file_path || f.args.filename || "");
+          const content = f.args.content ?? f.args.contents ?? f.args.text;
+          const name = path.split("/").pop() || "";
+          if (name && typeof content === "string" && content.length <= MAX_INLINE && DELIVERABLE.test(name) && !/(^|\/)(node_modules|\.git|tmp)\//.test(path)) {
+            const card: Card = { kind: "file", id: `file:${path}`, name, content, size: content.length };
+            const i = t.cards.findIndex((c) => c.id === card.id);
+            if (i >= 0) t.cards[i] = card;
+            else t.cards.push(card);
+          }
+        }
         if (n.includes("update_plan")) {
           const plan: Card = { kind: "plan", id: "plan", title: String(f.args.title || ""), steps: Array.isArray(f.args.steps) ? f.args.steps : [] };
           const i = t.cards.findIndex((c) => c.kind === "plan");
@@ -365,6 +381,12 @@ export function buildTranscript(events: RawEvent[], lang: Lang, running: boolean
         if (s) s.status = f.ok ? "done" : "error";
         const p = payloadOf(f.result);
         if (p?.type === "megsy.media") t.cards.push({ kind: "media", id: f.callId, media: p });
+        if (p?.type === "megsy.file" && p.url) {
+          const card: Card = { kind: "file", id: `file:${p.name}`, name: String(p.name), url: String(p.url), mime: p.mime, size: p.size };
+          const i = t.cards.findIndex((c) => c.id === card.id);
+          if (i >= 0) t.cards[i] = card;
+          else t.cards.push(card);
+        }
         if (p?.type === "megsy.video_proposal") t.cards.push({ kind: "video", id: f.callId, proposal: p });
         break;
       }

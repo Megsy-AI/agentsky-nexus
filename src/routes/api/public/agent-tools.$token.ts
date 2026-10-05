@@ -80,6 +80,22 @@ const TOOLS = [
   },
 ];
 
+TOOLS.push({
+  name: "share_file",
+  description:
+    "Deliver a finished file to the user as a download card. ALWAYS call this for every file you produced for the user (reports, documents, spreadsheets, code, PDFs, images) before you finish. Use content for text files or content_base64 for binary files.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      filename: { type: "string", description: "File name with extension, e.g. report.pdf" },
+      content: { type: "string", description: "Text content (for text files)" },
+      content_base64: { type: "string", description: "Base64 content (for binary files)" },
+      mime_type: { type: "string" },
+    },
+    required: ["filename"],
+  } as any,
+});
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
@@ -126,6 +142,25 @@ async function runTool(userId: string, origin: string, name: string, args: any, 
       const run = await startRun(model, model.build({ prompt, aspect: String(args?.aspect_ratio || "16:9"), duration: Number(args?.duration) || 5 }), `vid-${userId}-${callId}`);
       return { text: "The video is rendering in the chat card. Do not wait or paste links.",
         payload: { type: "megsy.media", kind: "video", runId: run.runId, token: runStatusToken(run.runId), status: run.status, urls: [], model: model.label, prompt } };
+    }
+    case "share_file": {
+      const name = String(args?.filename || "file.txt").replace(/[^\w.\- ]+/g, "_").slice(0, 120);
+      const bytes = args?.content_base64
+        ? Uint8Array.from(atob(String(args.content_base64)), (c) => c.charCodeAt(0))
+        : new TextEncoder().encode(String(args?.content ?? ""));
+      if (!bytes.length) return { text: "The file is empty; nothing was shared." };
+      if (bytes.length > 25 * 1024 * 1024) return { text: "The file is larger than 25 MB; split it or compress it." };
+      const mime = String(args?.mime_type || "application/octet-stream");
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const path = `${userId}/${crypto.randomUUID()}/${name}`;
+      const up = await supabaseAdmin.storage.from("agent-files").upload(path, bytes, { contentType: mime, upsert: false });
+      if (up.error) return { text: `Could not save the file: ${up.error.message}` };
+      const signed = await supabaseAdmin.storage.from("agent-files").createSignedUrl(path, 60 * 60 * 24 * 30, { download: name });
+      if (signed.error || !signed.data) return { text: "Could not create a download link." };
+      return {
+        text: "The file is now shown to the user as a download card. Do not paste the link.",
+        payload: { type: "megsy.file", name, url: signed.data.signedUrl, mime, size: bytes.length },
+      };
     }
     case "ask_user":
       return { text: "The question is shown to the user. End your turn now and wait for the answer." };

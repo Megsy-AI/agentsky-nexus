@@ -74,9 +74,9 @@ export default function AgentChatPage() {
                 {ar ? "يبحث، يتصفح، يعمل صور وفيديو، ويخلص المهام لوحده." : "It researches, browses, makes images and video, and finishes tasks on its own."}
               </p>
             </div>
-            {ws.agents.length > 1 && (
+            {ws.agents.filter((a) => !a.mediaOnly).length > 1 && (
               <div className="flex flex-wrap justify-center gap-2">
-                {ws.agents.map((a) => (
+                {ws.agents.filter((a) => !a.mediaOnly).map((a) => (
                   <button key={a.id} type="button" className="ag-chip" data-selected={a.id === agent?.id} onClick={() => setPickedAgent(a.id)}>
                     <AgentOrb size={18} color={a.color} />
                     {a.name}

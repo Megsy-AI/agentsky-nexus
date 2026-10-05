@@ -46,7 +46,8 @@ const toToolParts = (turn?: AgentTurn): ToolPart[] | undefined =>
 
 export async function runAgentSkyTurn(args: Args): Promise<void> {
   const mediaTurn = Boolean(detectMediaIntent(args.text));
-  const selectedAgentId = mediaTurn ? "higgsfield" : args.agentId;
+  // Higgsfield only handles images and video; other messages go to the regular agent.
+  const selectedAgentId = mediaTurn ? "higgsfield" : args.agentId === "higgsfield" ? undefined : args.agentId;
   const assistantClientId = `assistant-${args.localTurnId}`;
   const controller = new AbortController();
   args.abortControllerRef.current = controller;
