@@ -2,7 +2,7 @@
 import { useState } from "react";
 import {
   Brain, Search, FileText, MousePointerClick, Image as ImageIcon, Film, Users, Terminal, PenLine,
-  MessageCircleQuestion, ListTodo, ListChecks, Wrench, ChevronDown, X, Code2, FileCode, FolderOpen, BookMarked, Mail, CalendarDays, MapPin, BarChart3,
+  MessageCircleQuestion, ListTodo, ListChecks, Wrench, X, Code2, FileCode, FolderOpen, BookMarked, Mail, CalendarDays, MapPin, BarChart3,
 } from "lucide-react";
 import type { Step, StepKind } from "@/lib/agentsky/transcript";
 import { Button } from "@/components/ui/button";
@@ -15,25 +15,16 @@ const ICONS: Record<StepKind, any> = {
 };
 
 function StepRow({ step }: { step: Step }) {
-  const [open, setOpen] = useState(false);
   const Icon = step.status === "error" ? X : ICONS[step.kind];
-  const expandable = step.kind === "thought" && !!step.detail?.trim();
   return (
     <div className="ag-step ag-fade-in" data-status={step.status} data-kind={step.kind}>
       <span className="ag-step__icon">
         {step.kind === "helper" ? <AgentOrb size={20} color="mint" state={step.status === "active" ? "tool" : step.status === "error" ? "error" : "done"} /> : <Icon size={12} strokeWidth={2.4} />}
       </span>
       <div className="min-w-0 flex-1">
-        <Button variant="ghost"
-          type="button"
-          disabled={!expandable}
-          onClick={() => setOpen((v) => !v)}
-          className="ag-step__label h-auto justify-start px-0 py-0 text-[13px] font-normal text-start disabled:opacity-100 disabled:cursor-default hover:bg-transparent"
-        >
+        <div className="ag-step__label text-[13px]">
           <span className={step.status === "active" ? "ag-shimmer" : ""}>{step.label}</span>
-          {expandable && <ChevronDown size={13} className={`transition-transform ${open ? "rotate-180" : ""}`} />}
-        </Button>
-        {open && expandable && <div className="ag-thought">{step.detail?.trim()}</div>}
+        </div>
       </div>
     </div>
   );
@@ -41,6 +32,8 @@ function StepRow({ step }: { step: Step }) {
 
 export function StepTimeline({ steps, lang }: { steps: Step[]; lang: "en" | "ar" }) {
   const [showAll, setShowAll] = useState(false);
+  // Thinking is shown only while it is happening; once the agent acts, the line becomes the action.
+  steps = steps.filter((s, i) => s.kind !== "thought" || (s.status === "active" && i === steps.length - 1));
   if (!steps.length) return null;
   const LIMIT = 6;
   const hidden = steps.length > LIMIT && !showAll ? steps.length - LIMIT : 0;
