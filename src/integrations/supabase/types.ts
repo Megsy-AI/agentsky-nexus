@@ -1285,6 +1285,42 @@ export type Database = {
         }
         Relationships: []
       }
+      agentsky_keys: {
+        Row: {
+          active: boolean
+          added_by_telegram: number | null
+          created_at: string
+          fail_count: number
+          id: string
+          key_value: string
+          label: string | null
+          last_error: string | null
+          last_used_at: string | null
+        }
+        Insert: {
+          active?: boolean
+          added_by_telegram?: number | null
+          created_at?: string
+          fail_count?: number
+          id?: string
+          key_value: string
+          label?: string | null
+          last_error?: string | null
+          last_used_at?: string | null
+        }
+        Update: {
+          active?: boolean
+          added_by_telegram?: number | null
+          created_at?: string
+          fail_count?: number
+          id?: string
+          key_value?: string
+          label?: string | null
+          last_error?: string | null
+          last_used_at?: string | null
+        }
+        Relationships: []
+      }
       agentsky_sessions: {
         Row: {
           agent_id: string
@@ -10345,6 +10381,21 @@ export type Database = {
         }
         Relationships: []
       }
+      telegram_key_admins: {
+        Row: {
+          created_at: string
+          telegram_user_id: number
+        }
+        Insert: {
+          created_at?: string
+          telegram_user_id: number
+        }
+        Update: {
+          created_at?: string
+          telegram_user_id?: number
+        }
+        Relationships: []
+      }
       telegram_media: {
         Row: {
           cached_until: string | null
@@ -12993,6 +13044,13 @@ export type Database = {
         Returns: Json
       }
       sync_credit_total: { Args: { p_user_id: string }; Returns: number }
+      take_agentsky_key: {
+        Args: never
+        Returns: {
+          id: string
+          key_value: string
+        }[]
+      }
       take_service_key: {
         Args: { p_provider: string }
         Returns: {
