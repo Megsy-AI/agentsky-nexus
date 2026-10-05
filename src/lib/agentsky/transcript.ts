@@ -23,7 +23,7 @@ export type Card =
   | { kind: "file"; id: string; name: string; url?: string; content?: string; mime?: string; size?: number };
 
 /** Deliverable files the agent writes in its workspace and the user should be able to download. */
-const DELIVERABLE = /\.(md|txt|csv|tsv|json|html?|xml|ya?ml|py|js|ts|tsx|jsx|css|sql|sh|svg|docx?|xlsx?|pptx?|pdf)$/i;
+const DELIVERABLE = /\.(md|txt|csv|tsv|json|html?|xml|ya?ml|py|js|ts|tsx|jsx|css|sql|sh|svg)$/i;
 const MAX_INLINE = 400_000;
 
 export type UserTurn = { type: "user"; id: string; text: string; images: string[]; at?: string };
