@@ -1,5 +1,11 @@
 # Megsy — roadmap
 
+## Agents redesign (October 5, latest request)
+- [ ] Clean English Agents list and conversational New agent entry.
+- [ ] Primary-agent discovery, review proposal and explicit in-chat Create agent action.
+- [ ] Hide Tasks pages and navigation; neutral shadcn buttons application-wide.
+- [ ] Verify presentation and creation parsing; authenticated live creation requires an available external Supabase session.
+
 ## Fixed in the QA pass
 - Computer tasks: terminal state (done/failed + result text) is written only after the
   external environment confirms it (`src/lib/computer/client.ts`, `persistTerminalState`).

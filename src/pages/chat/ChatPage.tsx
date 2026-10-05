@@ -1574,6 +1574,7 @@ const ChatPage = () => {
       try {
         await runAgentSkyTurn({
           text,
+          buildingAgent: new URLSearchParams(location.search).get("create-agent") === "1",
           userMsg,
           localTurnId,
           sessionId: (requestedAgentId && lastAgentId && requestedAgentId !== lastAgentId) || messages.some((message) => message.agentSkyAgent?.id === lastAgentId && message.agentSkyAgent?.name === "higgsfield") ? undefined : previousSessionId,

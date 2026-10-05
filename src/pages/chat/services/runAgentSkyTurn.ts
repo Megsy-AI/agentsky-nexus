@@ -6,6 +6,7 @@ import type { Message, ToolPart } from "../chatConstants";
 import { loadWorkspace, workspace } from "@/lib/agentsky/store";
 import { detectMediaIntent } from "@/lib/agentsky/mediaIntent";
 import type { AttachedFile } from "../hooks/useAttachments";
+import { AGENT_BUILDER_INSTRUCTIONS } from "@/lib/agentsky/agentBuilder";
 
 type Args = {
   text: string;
@@ -14,6 +15,7 @@ type Args = {
   sessionId?: string;
   agentId?: string;
   hasPriorTurns?: boolean;
+  buildingAgent?: boolean;
   lang: Lang;
   images?: string[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
@@ -45,7 +47,8 @@ const toToolParts = (turn?: AgentTurn): ToolPart[] | undefined =>
     }));
 
 export async function runAgentSkyTurn(args: Args): Promise<void> {
-  const mediaTurn = Boolean(detectMediaIntent(args.text));
+  const mediaTurn = !args.buildingAgent && Boolean(detectMediaIntent(args.text));
+  const providerText = args.buildingAgent ? `${AGENT_BUILDER_INSTRUCTIONS}\n\nUser message:\n${args.text}` : args.text;
   // Higgsfield only handles images and video; other messages go to the regular agent.
   const selectedAgentId = mediaTurn ? "higgsfield" : args.agentId === "higgsfield" ? undefined : args.agentId;
   const assistantClientId = `assistant-${args.localTurnId}`;
@@ -100,14 +103,14 @@ export async function runAgentSkyTurn(args: Args): Promise<void> {
     update({ agentSkyAgent: identity });
     if (controller.signal.aborted) { stopped = true; return; }
     if (!sid) {
-      const created = await agentApi.createSession({ agentId: selectedAgentId, text: args.text, images: args.images });
+      const created = await agentApi.createSession({ agentId: selectedAgentId, text: providerText, images: args.images });
       sid = created.session.id;
       workspace.upsertSession(created.session);
       if (created.agent) workspace.addAgent(created.agent);
       const selected = created.agent ?? workspace.agent(created.session.agentId);
       if (selected) identity = { id: selected.id, name: selected.name, color: selected.color };
     } else {
-      await agentApi.send(sid, args.text, args.images);
+      await agentApi.send(sid, providerText, args.images);
     }
     const activeSid = sid;
     args.onSession(activeSid);
