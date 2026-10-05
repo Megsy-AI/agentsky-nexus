@@ -29,5 +29,5 @@ html body button[data-variant="ghost"], html body button[data-variant="link"] { 
 html body button[data-variant="outline"] { background: transparent !important; border: 1px solid var(--button-line); }
 html body button:hover:not(:disabled) { filter: none !important; opacity: .85; }
 html body button::before, html body button::after, html body .btn-sunset::before, html body .btn-sunset::after { background: none !important; box-shadow: none !important; }
-html body button :where(span, svg) { color: inherit !important; }
+html body button :where(span, svg) { color: inherit !important; background-image: none !important; -webkit-text-fill-color: currentColor !important; }
 html body button:focus-visible { outline: 2px solid var(--button-ink); outline-offset: 3px; }

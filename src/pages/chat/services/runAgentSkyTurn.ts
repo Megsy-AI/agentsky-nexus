@@ -57,6 +57,7 @@ export async function runAgentSkyTurn(args: Args): Promise<void> {
   const update = (patch: Partial<Message>) => args.setMessages((prev) => prev.map((message) => message.clientId === assistantClientId ? { ...message, ...patch } : message));
   args.setMessages((prev) => [...prev, args.userMsg, {
     role: "assistant", content: "", clientId: assistantClientId, agentPending: true,
+    agentBuilder: args.buildingAgent,
     agentSkyState: args.sessionId || args.hasPriorTurns ? "thinking" : "awakening", modelLabel: mediaTurn ? "higgsfield · Hypit" : "OpenClaw · gpt-5.6-luna",
     ...(mediaTurn ? { agentSkyAgent: { id: "higgsfield", name: "higgsfield", color: "sun" as const } } : {}),
   }]);
@@ -188,6 +189,7 @@ export async function runAgentSkyTurn(args: Args): Promise<void> {
         if (userId) args.ownInsertedIdsRef.current.add(userId);
         const metadata = {
           kind: "agentSky", agentSkySessionId: sid, agentSkyAgent: identity,
+          agentBuilder: args.buildingAgent,
           agentSkySteps: turn?.steps ?? [], agentSkyStopped: stopped,
           agentSkyState: failure || turn?.error ? "error" : "done",
           agentSkyCards: turn?.cards ?? [], agentSkyRequests: requests,
