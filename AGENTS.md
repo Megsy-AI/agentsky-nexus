@@ -83,3 +83,5 @@ See `roadmap.md`.
 - Do not redeploy `anything-api` from this repo: its deployed version has modules missing here. Why: redeploying would break live features.
 - Agent creates tasks/goals by ending replies with [[TASK|ALARM|GOAL: title | local time]]; ComputerTaskCard saves them via src/lib/life/agentActions.ts. Why: the agent runs on Browser Use and cannot write to our DB.
 - Phone alarms/reminders go through the `MegsyAndroid` WebView bridge (src/lib/native/bridge.ts, docs/android-bridge.md); background push + morning plan via pg_cron → /api/public/reminders-tick (FCM connector, key in public.cron_secrets). Why: the Android app wraps the site, so web push doesn't work inside it.
+- AgentSky keys come from the `agentsky_keys` pool (LRU via `take_agentsky_key`, service-role only), filled by the Telegram bot at /api/public/telegram-keys; AGENTSKY_API_KEY is only a fallback. Why: keys rotate without redeploys and dead keys are disabled automatically.
+- Agent deliverables reach the user as `file` cards: via the `share_file` MCP tool (agent-files bucket, signed URL) or inline from write-tool calls. Why: the agent's sandbox files are otherwise invisible to users.
