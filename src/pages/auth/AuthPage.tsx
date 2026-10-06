@@ -768,7 +768,6 @@ const AuthPage = () => {
         <SEOHead title={authT("seoTitle")} description={authT("seoDesc")} path="/auth" noindex />
         <MobileAuthIntro
           onGoogle={handleGoogleLogin}
-          onMicrosoft={handleMicrosoftLogin}
           onBack={() => setStep(step === "password" ? "email" : "intro1")}
           onEmail={() => setStep("email")}
           onTelegram={undefined}
