@@ -266,6 +266,8 @@ export default function MobilePricingScreen({
       <div className="shrink-0" style={{ height: "calc(max(env(safe-area-inset-top), 0.25rem) + 44px)" }} />
 
       <main className="relative z-10 mx-auto flex w-full max-w-[400px] flex-1 flex-col px-5">
+        {/* Top flexible space — centers the whole block on tall screens */}
+        <div className="flex-[0.6]" />
         {/* Megsy star mark */}
         <div
           className={`mps-rise flex justify-center ${compact ? "mt-[2%]" : "mt-[4%]"}`}
@@ -318,8 +320,8 @@ export default function MobilePricingScreen({
           </ul>
         </div>
 
-        {/* Breathing room, exactly like the reference */}
-        <div className="flex-1 min-h-[12px]" />
+        {/* Breathing room between the feature card and billing options */}
+        <div className="flex-[0.4] min-h-[12px] max-h-10" />
 
         {/* Billing options */}
         <div
