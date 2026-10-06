@@ -443,6 +443,8 @@ export default function MobilePricingScreen({
             </Link>
           </nav>
         </div>
+        {/* Bottom flexible space — keeps the block centered on tall screens */}
+        <div className="flex-[0.6]" />
       </main>
 
     </div>
