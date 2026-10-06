@@ -16,7 +16,8 @@ export function AgentProposalCard({ proposal }: { proposal: AgentProposal }) {
     if (busy || createdId) return;
     setBusy(true); setError("");
     try {
-      const agent = await agentApi.createAgent(agentProposalSchema.parse(proposal));
+      agentProposalSchema.parse(proposal);
+      const agent = await agentApi.createAgent(proposal);
       workspace.addAgent(agent.agent);
       setCreatedId(agent.agent.id);
     } catch (e) { setError(e instanceof Error ? e.message : "Could not create your agent. Please try again."); }

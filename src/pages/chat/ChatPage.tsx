@@ -118,6 +118,7 @@ import { useReadsAndReactions } from "./hooks/useReadsAndReactions";
 import { useUnreadDocumentTitle } from "./hooks/useUnreadDocumentTitle";
 import { useRealtimeMembers } from "./hooks/useRealtimeMembers";
 import { usePostSignupPrompt } from "./hooks/usePostSignupPrompt";
+import { useAgentCreationEntry } from "./hooks/useAgentCreationEntry";
 import { useRealtimeChat } from "./hooks/useRealtimeChat";
 import { useSmartQuestionsParser } from "./hooks/useSmartQuestionsParser";
 import { useMessageReactionToggle } from "./hooks/useMessageReactionToggle";
@@ -2437,6 +2438,7 @@ const ChatPage = () => {
 
   // After signup, auto-send the prompt the user typed on the landing page.
   usePostSignupPrompt(handleSendWithText);
+  useAgentCreationEntry(chatUserId, location, navigate, handleSendWithText);
 
   const handleNewChat = useChatNewChat({
     slidesGenerationTokenRef,

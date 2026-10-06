@@ -5,6 +5,7 @@ import { useWorkspaceStore } from "@/lib/agentsky/store";
 import type { Message } from "../chatConstants";
 import { Tool, ToolContent, ToolHeader } from "@/components/ai-elements/tool";
 import { ApprovalCard, FileCard, MediaCard, PlanCard, QuestionCard, TaskCard, VideoProposalCard } from "@/components/agent/Cards";
+import { AgentProposalCard } from "@/components/agent/AgentProposalCard";
 
 const toolState = (state: "running" | "done" | "error") =>
   state === "running" ? "input-available" as const : state === "error" ? "output-error" as const : "output-available" as const;
@@ -37,10 +38,11 @@ export default function AgentSkyBlocks({ message, onSend }: { message: Message; 
         </div>
       )}
       {cards.map((card) => {
+        if (card.kind === "agent-proposal") return <AgentProposalCard key={card.id} proposal={card.proposal} />;
         if (card.kind === "media") return <MediaCard key={card.id} media={card.media} lang={lang} />;
         if (card.kind === "video") return <VideoProposalCard key={card.id} proposal={card.proposal} models={workspace.models} tier={workspace.tier} lang={lang} onUpgrade={() => navigate("/pricing")} />;
         if (card.kind === "question") return <QuestionCard key={card.id} question={card.question} options={card.options} allowFreeText={card.allowFreeText} answered={card.answered} lang={lang} onAnswer={onSend} />;
-        if (card.kind === "task") return <TaskCard key={card.id} title={card.title} dueAt={card.dueAt} lang={lang} onOpen={() => navigate("/tasks")} />;
+        if (card.kind === "task") return <TaskCard key={card.id} title={card.title} dueAt={card.dueAt} lang={lang} onOpen={() => navigate("/chat")} />;
         if (card.kind === "plan") return <PlanCard key={card.id} title={card.title} steps={card.steps} lang={lang} />;
         return null;
       })}
