@@ -21,6 +21,12 @@ interface LegalDoc {
 }
 
 const SUPPORT_EMAIL = "support@megsyai.com";
+const COMPANY = {
+  name: "Megsy for Digital Platforms & E-Commerce Development LLC",
+  address: "58 El-Hegaz Street, Amoun Tower, Unit 84, Floor 8, Sheraton Al-Matar, Cairo, Egypt",
+  registration: "248691",
+  tax: "774034785",
+};
 
 export const LEGAL_DOCS: Record<string, LegalDoc> = {
   terms: {
@@ -105,8 +111,8 @@ export const LEGAL_DOCS: Record<string, LegalDoc> = {
       {
         heading: "Retention and deletion",
         body: [
-          "Conversations, files and memories stay until you delete them or delete your account. Some records — such as billing history and security logs — are retained where required for accounting or fraud prevention.",
-          "You can delete individual items, export or clear data from Settings, and delete your account from Settings.",
+          "Stored conversations, files and account information support your ongoing use of the service. Deleting an item in the app may not immediately remove backup copies or records held by third-party providers.",
+          `For access, correction or deletion requests, contact ${SUPPORT_EMAIL} from your account email. Billing and security records may need to be retained to meet applicable obligations. This policy does not promise a specific backup or provider retention period.`,
         ],
       },
       {
@@ -136,21 +142,21 @@ export const LEGAL_DOCS: Record<string, LegalDoc> = {
       {
         heading: "Cancelling a subscription",
         body: [
-          "You can cancel at any time from Settings → Billing. Cancellation stops the next renewal; your plan stays active until the end of the period you already paid for.",
-          "Pausing is offered as an alternative to cancelling where available.",
+          `Use the subscription-management option available in your billing page, or contact ${SUPPORT_EMAIL} to request cancellation. Include your account email and order reference.`,
+          "Cancellation and refund are separate requests. Check the renewal and end-of-access information shown for your purchase; a cancellation does not itself reverse an earlier payment.",
         ],
       },
       {
         heading: "Refund requests",
         body: [
           `Refund requests are reviewed case by case. Email ${SUPPORT_EMAIL} from your account address with the transaction date and the reason for the request.`,
-          "Requests are more likely to be approved when the subscription was charged in error, was a duplicate charge, or when the paid features could not be delivered.",
+          "Please identify duplicate or incorrect charges and paid features that were not delivered so we can investigate. Applicable statutory rights are not excluded by this policy.",
         ],
       },
       {
         heading: "Consumed usage",
         body: [
-          "Credits and usage already consumed (generated images, videos, research runs, chat usage) cannot be restored after a refund is issued.",
+          "Consumed paid usage and the circumstances of a purchase are considered when reviewing a request, subject to applicable law. Free chat is not a paid purchase.",
         ],
       },
       {
@@ -192,7 +198,7 @@ export const LEGAL_DOCS: Record<string, LegalDoc> = {
     title: "Contact Megsy AI",
     description:
       "Get in touch with the Megsy AI team for support, billing questions, security reports or partnership enquiries.",
-    intro: "We read every message sent to our support address.",
+    intro: "Contact the Megsy team for account, payment, privacy or security questions.",
     sections: [
       {
         heading: "Support",
@@ -220,30 +226,34 @@ export const LEGAL_DOCS: Record<string, LegalDoc> = {
 const LegalPage = ({ slug }: { slug: keyof typeof LEGAL_DOCS }) => {
   const doc = LEGAL_DOCS[slug];
   const location = useLocation();
+  const sections = [
+    { heading: "Company and operator", body: [COMPANY.name, COMPANY.address, `Commercial registration: ${COMPANY.registration} · Tax registration: ${COMPANY.tax}`, `Support and privacy enquiries: ${SUPPORT_EMAIL}`] },
+    ...doc.sections,
+    ...(slug === "terms" ? [{ heading: "Egyptian law and consumer rights", body: ["Megsy is operated by an Egyptian company. These terms are subject to applicable Egyptian law, including mandatory consumer-protection and personal-data requirements. Nothing here excludes rights or remedies that cannot lawfully be excluded.", "AI output is not a substitute for professional advice. You must have permission to submit files and personal information, and must not use an agent to take actions you are not authorised to perform."] }] : []),
+    ...(slug === "refund" ? [{ heading: "Payment methods", body: ["Checkout offers the payment methods available for your order, including mobile wallets such as Vodafone Cash in Egypt through Kashier. The amount, currency and purchase details shown before confirmation apply.", "Do not send passwords, full card numbers or wallet PINs to support. Keep your order reference and payment receipt."] }] : []),
+  ];
 
   return (
     <>
       <SEOHead
-        title={doc.title}
+        title={`${doc.title} — Megsy AI`}
         description={doc.description}
         path={doc.path || location.pathname}
       />
-      <main className="min-h-dvh bg-background text-foreground">
-        <div className="mx-auto w-full max-w-3xl px-5 py-12 sm:py-16">
-          <Link
-            to="/chat"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            ← Back to Megsy
-          </Link>
-
-          <header className="mt-6">
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{doc.title}</h1>
+      <main className="megsy-legal" data-no-translate>
+        <nav className="megsy-legal-nav" aria-label="Company navigation"><Link to="/landing" className="font-semibold">Megsy AI</Link><Link to="/chat">Workspace</Link><Link to="/pricing">Plans</Link><a href={`mailto:${SUPPORT_EMAIL}`}>Support</a></nav>
+        <div className="megsy-legal-layout">
+          <aside className="megsy-legal-aside" aria-label="Policies">{Object.entries(LEGAL_DOCS).map(([key, item]) => <Link key={key} to={item.path} aria-current={key === slug ? "page" : undefined}>{item.title}</Link>)}</aside>
+          <article>
+          <header className="mb-10">
+            <p className="megsy-public-kicker mb-4">COMPANY & POLICIES · EGYPT</p>
+            <h1>{doc.title}</h1>
             <p className="mt-3 text-base leading-relaxed text-muted-foreground">{doc.intro}</p>
+            <p className="mt-5 text-xs text-muted-foreground">Last updated October 6, 2026</p>
           </header>
 
-          <div className="mt-10 space-y-9">
-            {doc.sections.map((section) => (
+          <div className="megsy-legal-body">
+            {sections.map((section) => (
               <section key={section.heading}>
                 <h2 className="text-lg font-semibold tracking-tight">{section.heading}</h2>
                 <div className="mt-3 space-y-3">
@@ -279,6 +289,7 @@ const LegalPage = ({ slug }: { slug: keyof typeof LEGAL_DOCS }) => {
               </Link>
             </div>
           </footer>
+          </article>
         </div>
       </main>
     </>
