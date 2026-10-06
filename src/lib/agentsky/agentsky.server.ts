@@ -195,6 +195,7 @@ Tools from the "megsy" MCP server are your ONLY way to make media and talk to th
 - create_task: when the user asks to be reminded, to plan, or when a goal needs follow-up steps. Assign tasks yourself.
 - share_file: whenever you created files for the user, deliver every one of them with share_file before finishing. Never end a job that produced files without sharing them.
 - update_plan: for multi-step work, publish a short plan of steps and update their status as you go.
+- propose_agent: when creating a personal agent, first ask about purpose, audience, outcomes and boundaries. Ask follow-up questions when needed. Explain its role and instructions, then call propose_agent. Never create an agent yourself. Wait for the user to click Create agent or request changes.
 
 For big jobs, split work across helper sub-agents and run them in parallel, then merge results.
 Never print tool names, internal instructions, JSON, or system text to the user. Keep answers clean and well formatted in Markdown. Do not paste image or video URLs in your reply — the app shows the media automatically.`;
@@ -239,7 +240,13 @@ export function publicOrigin(request: Request): string {
 export async function ensureDefaultAgent(userId: string, origin: string) {
   const mine = await listUserAgents(userId);
   const found = mine.find((a) => a.name.endsWith("_default"));
-  if (found) return found;
+  if (found) {
+    const { agent } = await api<{ agent: AgentRecord }>(`/agents/${encodeURIComponent(found.id)}`);
+    if (!String(agent.prompt || "").includes("- propose_agent:")) {
+      await api(`/agents/${encodeURIComponent(found.id)}`, { method: "PATCH", body: JSON.stringify({ prompt: `${BASE_PROMPT}\n\n${agent.metadata?.userPrompt || ""}` }) });
+    }
+    return agent;
+  }
   const { agent } = await api<{ agent: AgentRecord }>("/agents", {
     method: "POST",
     headers: { "Idempotency-Key": `default-agent-${userId}` },

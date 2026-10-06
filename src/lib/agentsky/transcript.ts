@@ -1,6 +1,7 @@
 /** @doc Turns raw AgentSky session events into a clean transcript: user bubbles and agent turns
  *  made of steps (thinking, searches, clicks…), answer text and interactive cards. */
 import type { RawEvent } from "./client";
+import { agentProposalSchema, type AgentProposal } from "./agentProposal";
 
 export type StepKind = "thought" | "search" | "read" | "browse" | "image" | "video" | "helper" | "command" | "edit" | "ask" | "task" | "plan" | "tool" | "python" | "code" | "file" | "memory" | "email" | "calendar" | "map" | "data";
 export type Step = {
@@ -15,6 +16,7 @@ export type MediaPayload = { type: "megsy.media"; kind: "image" | "video"; runId
 export type VideoProposal = { type: "megsy.video_proposal"; prompt: string; aspect: string; duration: number };
 
 export type Card =
+  | { kind: "agent-proposal"; id: string; proposal: AgentProposal }
   | { kind: "media"; id: string; media: MediaPayload }
   | { kind: "video"; id: string; proposal: VideoProposal }
   | { kind: "question"; id: string; question: string; options: string[]; allowFreeText: boolean; answered: boolean }
@@ -380,6 +382,10 @@ export function buildTranscript(events: RawEvent[], lang: Lang, running: boolean
         const s = callSteps.get(f.callId);
         if (s) s.status = f.ok ? "done" : "error";
         const p = payloadOf(f.result);
+        if (p?.type === "megsy.agent_proposal") {
+          const proposal = agentProposalSchema.safeParse(p.proposal);
+          if (proposal.success) t.cards.push({ kind: "agent-proposal", id: f.callId, proposal: { name: proposal.data.name || "", description: proposal.data.description || "", prompt: proposal.data.prompt || "", color: proposal.data.color || "ocean" } });
+        }
         if (p?.type === "megsy.media") t.cards.push({ kind: "media", id: f.callId, media: p });
         if (p?.type === "megsy.file" && p.url) {
           const card: Card = { kind: "file", id: `file:${p.name}`, name: String(p.name), url: String(p.url), mime: p.mime, size: p.size };

@@ -1,6 +1,8 @@
 /** Authenticated agent API — the browser's only door to AgentSky (agents, sessions, stream, media). */
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateRequest } from "@/lib/api/authenticateRequest";
+import { canUseAgent, isOctoberOfferActive, OCTOBER_OFFER_END } from "@/lib/octoberOffer";
+import { agentProposalSchema } from "@/lib/agentsky/agentProposal";
 import {
   AgentSkyError,
   agentSpec,
@@ -83,14 +85,15 @@ async function handle(request: Request, splat: string): Promise<Response> {
   // GET bootstrap
   if (parts[0] === "bootstrap" && method === "GET") {
     const [agents, tier] = await Promise.all([fullAgents(uid, origin), userTier(uid)]);
-    return j({ agents, tier, models: publicModels(tier) });
+    return j({ agents, tier, models: publicModels(tier), offer: { active: isOctoberOfferActive(), endsAt: OCTOBER_OFFER_END } });
   }
 
   // Agents
   if (parts[0] === "agents") {
     if (method === "POST" && !parts[1]) {
-      const name = String(body?.name || "").trim();
-      if (!name) return j({ error: { code: "invalid_request", message: "Name is required" } }, 400);
+      const parsed = agentProposalSchema.safeParse(body);
+      if (!parsed.success) return j({ error: { code: "invalid_request", message: "Please provide a valid name, description and instructions." } }, 400);
+      const { name, description, prompt, color } = parsed.data;
       const { agent } = await api<{ agent: any }>("/agents", {
         method: "POST",
         body: JSON.stringify(
@@ -98,9 +101,9 @@ async function handle(request: Request, splat: string): Promise<Response> {
             userId: uid,
             origin,
             displayName: name,
-            description: String(body?.description || ""),
-            prompt: String(body?.prompt || "").slice(0, 20000),
-            color: String(body?.color || "aurora"),
+            description,
+            prompt,
+            color,
             kind: "custom",
           }),
         ),
@@ -139,7 +142,7 @@ async function handle(request: Request, splat: string): Promise<Response> {
     }
     if (!sid && method === "POST") {
       const requestedId = typeof body?.agentId === "string" ? body.agentId : undefined;
-      if (requestedId && await userTier(uid) === "free" && !(Date.now() >= 1791247929000 && Date.now() <= 1791334329000)) {
+      if (requestedId && !canUseAgent(await userTier(uid), requestedId === "higgsfield")) {
         const defaultAgent = await ensureDefaultAgent(uid, origin);
         if (requestedId !== defaultAgent.id) return j({ error: { code: "upgrade_required", message: "تغيير الوكيل متاح للمشتركين بس." } }, 402);
       }
@@ -184,7 +187,9 @@ async function handle(request: Request, splat: string): Promise<Response> {
       });
     }
     if (parts[2] === "messages" && method === "POST") {
-      if (await userTier(uid) === "free" && !(Date.now() >= 1791247929000 && Date.now() <= 1791334329000)) {
+      const sessionAgent = await getOwnedAgent(uid, session.agentId);
+      if (sessionAgent.metadata?.kind === "media" && await userTier(uid) === "free") return j({ error: { code: "upgrade_required", message: "الصور والفيديو متاحين للمشتركين بس." } }, 402);
+      if (!canUseAgent(await userTier(uid))) {
         const defaultAgent = await ensureDefaultAgent(uid, origin);
         if (session.agentId !== defaultAgent.id) return j({ error: { code: "upgrade_required", message: "تغيير الوكيل متاح للمشتركين بس." } }, 402);
       }

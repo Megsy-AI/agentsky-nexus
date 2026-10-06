@@ -3,6 +3,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { readMcpToken, publicOrigin } from "@/lib/agentsky/agentsky.server";
 import { pickModel, startRun, userTier, waitRun, runStatusToken } from "@/lib/agentsky/media.server";
+import { agentProposalSchema } from "@/lib/agentsky/agentProposal";
 
 const TOOLS = [
   {
@@ -89,7 +90,7 @@ const TOOLS = [
         prompt: { type: "string", description: "System prompt / instructions" },
         color: { type: "string", enum: ["aurora", "ocean", "ember", "mint", "sun", "rose", "mono"] },
       },
-      required: ["name", "prompt"],
+      required: ["name", "description", "prompt"],
     },
   },
 ];
@@ -124,6 +125,10 @@ const result = (id: unknown, text: string, structured?: unknown) => ({
 
 async function runTool(userId: string, origin: string, name: string, args: any, callId: string) {
   switch (name) {
+    case "propose_agent": {
+      const proposal = agentProposalSchema.parse(args);
+      return { text: "The proposal and Create agent button are shown. Nothing has been created. Wait for explicit approval or changes.", payload: { type: "megsy.agent_proposal", proposal } };
+    }
     case "generate_image": {
       const prompt = String(args?.prompt || "").slice(0, 5000);
       if (!prompt) return { text: "Missing prompt." };
@@ -167,8 +172,6 @@ async function runTool(userId: string, origin: string, name: string, args: any, 
       const mime = String(args?.mime_type || "application/octet-stream");
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const path = `${userId}/${crypto.randomUUID()}/${name}`;
-    case "propose_agent":
-      return { text: `Proposed agent "${args?.name}" is ready for review.`, payload: { type: "megsy.agent_proposal", ...args } };
       const up = await supabaseAdmin.storage.from("agent-files").upload(path, bytes, { contentType: mime, upsert: false });
       if (up.error) return { text: `Could not save the file: ${up.error.message}` };
       const signed = await supabaseAdmin.storage.from("agent-files").createSignedUrl(path, 60 * 60 * 24 * 30, { download: name });

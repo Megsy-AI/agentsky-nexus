@@ -1,4 +1,5 @@
 import ReminderWatcher from "@/components/life/ReminderWatcher";
+import OctoberOfferDialog from "@/components/promo/OctoberOfferDialog";
 import { useEffect, useState, Suspense } from "react";
 import { BrowserRouter } from "react-router-dom";
 
@@ -208,6 +209,7 @@ const App = () => {
                     <ScrollToTop />
                     <PageViewTracker />
                     <ReminderWatcher />
+                    <OctoberOfferDialog />
                     <InternalLinkInterceptor />
                     <MarketingTypographyScope />
 
