@@ -8,7 +8,7 @@ import { AgentShell } from "@/components/agent/AgentShell";
 import { AgentOrb } from "@/components/agent/AgentOrb";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/common/SEOHead";
-import { canUseAgent, isOctoberOfferActive, OCTOBER_OFFER_END } from "@/lib/octoberOffer";
+import { canUseAgent } from "@/lib/octoberOffer";
 
 export function AgentsPage() {
   const nav = useNavigate();
@@ -16,8 +16,7 @@ export function AgentsPage() {
   const [query, setQuery] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t); }, []);
+  const [now] = useState(Date.now());
   const setup = () => nav("/chat", { state: { agentCreation: true } });
   const filtered = agents.filter(a => `${a.name} ${a.description}`.toLowerCase().includes(query.toLowerCase()));
   const personal = filtered.filter(a => !a.isTemplate);
