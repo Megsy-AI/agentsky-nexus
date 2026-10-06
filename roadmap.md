@@ -1,5 +1,13 @@
 # Megsy — roadmap
 
+## Current request (October 6, 2026)
+- [ ] Redesign Agents in English; guide creation through the main agent with an explicit in-chat Create agent approval.
+- [ ] Hide Tasks page from navigation and direct page entry without deleting reminder data.
+- [ ] Audit and remove provably unused project elements without breaking active services.
+- [ ] Redesign legal/company pages using verified Egyptian company details.
+- [ ] Build one immersive Megsy landing page with Arabic content and Vodafone Cash information; unknown paths lead there.
+- [ ] Activate a 24-hour October 6 promotion for everyone, excluding images/video; show the first-visit announcement and verify enforcement.
+
 ## Fixed in the QA pass
 - Computer tasks: terminal state (done/failed + result text) is written only after the
   external environment confirms it (`src/lib/computer/client.ts`, `persistTerminalState`).
