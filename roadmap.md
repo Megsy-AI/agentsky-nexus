@@ -1,12 +1,14 @@
 # Megsy — roadmap
 
 ## Current request (October 6, 2026)
-- [ ] Redesign Agents in English; guide creation through the main agent with an explicit in-chat Create agent approval.
-- [ ] Hide Tasks page from navigation and direct page entry without deleting reminder data.
-- [ ] Audit and remove provably unused project elements without breaking active services.
-- [ ] Redesign legal/company pages using verified Egyptian company details.
-- [ ] Build one immersive Megsy landing page with Arabic content and Vodafone Cash information; unknown paths lead there.
-- [ ] Activate a 24-hour October 6 promotion for everyone, excluding images/video; show the first-visit announcement and verify enforcement.
+- [x] Redesign Agents in English and wire guided creation through the main chat with an explicit proposal approval.
+- [x] Hide Tasks page from navigation and direct page entry without deleting reminder data.
+- [x] Audit cleanup candidates and remove five confirmed unused modules; preserve uncertain/shared dependencies.
+- [x] Redesign legal/company pages using existing company records, without claiming government verification or guaranteed compliance.
+- [x] Build and visually verify one immersive landing, Arabic content, Vodafone Cash, working video transitions and unknown-path fallback.
+- [x] Configure the 24-hour promotion and first-visit announcement; test expiry boundaries and paid-media exclusion.
+- [ ] Verify real signed-in agent creation and live promotional usage: blocked by external unmanaged authentication; no automatic authenticated checks available.
+- [ ] Owner/legal review of company records and policies: blocked on external verification and qualified legal review.
 
 ## Fixed in the QA pass
 - Computer tasks: terminal state (done/failed + result text) is written only after the
