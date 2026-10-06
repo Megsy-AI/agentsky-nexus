@@ -1,12 +1,13 @@
 # Megsy — Agent Handbook
 
-Read before editing. Agent proposals use persisted chat cards and explicit user-click creation; global Button styling stays neutral to override legacy CTAs.
+Read before editing.
 
 ## 1. What this project is
 
-Megsy AI: imported React SPA inside TanStack Start.
+Megsy AI (megsyai.com): an imported React SPA inside a TanStack Start shell.
 
-- `src/routes/__root.tsx` — HTML shell only, never page UI.
+- `src/routes/__root.tsx` — the HTML shell (head, fonts, boot styles, snapshot
+  restore, speculation rules). Do not put page UI here.
 - `src/routes/$.tsx` — catch-all that mounts the SPA for every non-API path.
 - `src/lib/SpaApp.tsx` + `src/lib/spaBoot.ts` — SPA bootstrap (client only).
 - `src/App.tsx` + `src/routes-app/*` — the real router, layouts and page tree.
@@ -70,7 +71,8 @@ bunx tsgo --noEmit     # types
 bun run build          # production build
 ```
 
-Smoke `/`, `/pricing`, `/chat`, `/settings`, `/usage`, `/referrals` signed in at mobile and desktop widths.
+Then smoke the routes (`/`, `/pricing`, `/chat`, `/settings`, `/usage`,
+`/referrals`) signed in, on mobile width and desktop width.
 
 ## 6. Known open items
 

@@ -61,7 +61,9 @@ export default function ComputerTaskCard({ taskId }: Props) {
     void saveLifeActions(taskId, actions).then((ok) => {
       if (!ok) return;
       const ar = lang0 === "ar-eg";
-      toast(ar ? "اتحفظ التذكير" : "Reminder saved");
+      toast(ar ? "اتضاف للمهام" : "Added to your tasks", {
+        action: { label: ar ? "افتح" : "Open", onClick: () => navigate("/tasks") },
+      });
     });
   }, [task?.status, task?.result_text, taskId, lang0, navigate]);
   // Files open on their own full page (/file-preview/:id) instead of an overlay

@@ -1,7 +1,6 @@
 /** @doc Turns raw AgentSky session events into a clean transcript: user bubbles and agent turns
  *  made of steps (thinking, searches, clicks…), answer text and interactive cards. */
 import type { RawEvent } from "./client";
-import { parseAgentProposal, hideAgentProposal, type AgentProposal } from "./agentBuilder";
 
 export type StepKind = "thought" | "search" | "read" | "browse" | "image" | "video" | "helper" | "command" | "edit" | "ask" | "task" | "plan" | "tool" | "python" | "code" | "file" | "memory" | "email" | "calendar" | "map" | "data";
 export type Step = {
@@ -16,7 +15,6 @@ export type MediaPayload = { type: "megsy.media"; kind: "image" | "video"; runId
 export type VideoProposal = { type: "megsy.video_proposal"; prompt: string; aspect: string; duration: number };
 
 export type Card =
-  | { kind: "agent-proposal"; id: string; proposal: AgentProposal }
   | { kind: "media"; id: string; media: MediaPayload }
   | { kind: "video"; id: string; proposal: VideoProposal }
   | { kind: "question"; id: string; question: string; options: string[]; allowFreeText: boolean; answered: boolean }
@@ -47,7 +45,6 @@ const INTERNAL_LINES = /^\s*(NO_REPLY|HEARTBEAT_OK|\[\[reply_to[^\]]*\]\]|<\/?(s
 
 export function cleanText(s: string): string {
   return (s || "")
-    .replace(/<!--megsy:agent-proposal[\s\S]*?(-->|$)/g, "")
     .replace(/<!--megsy:[\s\S]*?-->/g, "")
     .replace(/\[\[\s*(TASK|ALARM|GOAL|APPROVAL|reply_to)[^\]]*\]\]/gi, "")
     .replace(/<(system-reminder|system|internal)[^>]*>[\s\S]*?<\/\1>/gi, "")
@@ -275,17 +272,7 @@ export function buildTranscript(events: RawEvent[], lang: Lang, running: boolean
   const textByStream = new Map<string, string>();
 
   const flushText = () => {
-    if (cur) {
-      const raw = textStreams.map((s) => textByStream.get(s) || "").join("\n\n");
-      const proposal = parseAgentProposal(raw);
-      if (proposal) {
-        const card: Card = { kind: "agent-proposal", id: `proposal:${cur.id}`, proposal };
-        const index = cur.cards.findIndex((c) => c.kind === "agent-proposal");
-        if (index >= 0) cur.cards[index] = card;
-        else cur.cards.push(card);
-      }
-      cur.text = cleanText(hideAgentProposal(raw));
-    }
+    if (cur) cur.text = cleanText(textStreams.map((s) => textByStream.get(s) || "").join("\n\n"));
   };
   const agent = (): AgentTurn => {
     if (!cur) {

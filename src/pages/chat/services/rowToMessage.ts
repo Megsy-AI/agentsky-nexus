@@ -121,7 +121,6 @@ export function rowToMessage(
     timing: meta.timing && typeof meta.timing === "object" ? meta.timing : undefined,
     modelLabel: typeof meta.modelLabel === "string" ? meta.modelLabel : undefined,
     agentSkySessionId: typeof meta.agentSkySessionId === "string" ? meta.agentSkySessionId : undefined,
-    agentBuilder: meta.agentBuilder === true,
     agentSkyCards: Array.isArray(meta.agentSkyCards) ? meta.agentSkyCards : undefined,
     agentSkyRequests: Array.isArray(meta.agentSkyRequests) ? meta.agentSkyRequests : undefined,
     agentSkyAgent: meta.agentSkyAgent,

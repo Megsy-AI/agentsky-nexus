@@ -93,7 +93,7 @@ export const AppRoutes = ({ currentUserId }: { currentUserId: string | null }) =
     <Route path="/" element={<ChatPage />} />
     <Route path="/chat" element={<ChatPage />} />
     <Route path="/agents" element={<ProtectedRoute><AgentsPage /></ProtectedRoute>} />
-    <Route path="/agents/new" element={<ProtectedRoute><Navigate to="/chat?create-agent=1" replace /></ProtectedRoute>} />
+    <Route path="/agents/new" element={<ProtectedRoute><AgentNewPage /></ProtectedRoute>} />
     <Route path="/welcome" element={<WelcomePage />} />
     <Route path="/index" element={<ChatPage />} />
     <Route path="/share/:shareId" element={<SharedChatPage />} />
@@ -264,9 +264,13 @@ export const AppRoutes = ({ currentUserId }: { currentUserId: string | null }) =
     />
     <Route
       path="/tasks/life"
-      element={<Navigate to="/agents" replace />}
+      element={
+        <ProtectedRoute>
+          <TasksPage />
+        </ProtectedRoute>
+      }
     />
-    <Route path="/tasks" element={<Navigate to="/agents" replace />} />
+    <Route path="/tasks" element={<ProtectedRoute><AgentTasksPage /></ProtectedRoute>} />
     <Route path="/settings/knowledge" element={<Navigate to="/settings/memory" replace />} />
 
     <Route
