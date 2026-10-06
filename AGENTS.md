@@ -54,13 +54,14 @@ used, `FOR UPDATE SKIP LOCKED`).
 - Media runs require a live paid-plan check in both authenticated media routes and signed MCP tools; Higgsfield clones only a configured Hypit template, never substitutes a harness. Why: UI locks alone do not prevent free media spending or misrepresent the requested agent.
 - Auth welcome, email/password, OTP and reset share one character shell and existing handlers. Why: keep registration and recovery consistent.
 
-- Agent pages reuse AppSidebar, and AgentSky turns render inside the original ChatPage; per-message agent identity and steps persist in metadata. Why: one navigation and transcript prevents detached agent workspaces.
+- Agent pages and guided creation use original ChatPage/AppSidebar; see src/lib/agentsky/AGENTS.md. Why: one transcript and explicit approval.
 - AgentSky turn subscriptions stop on fresh session.status_idle/session.error events, with persisted-event reconciliation and baseline IDs. Why: the standing SSE feed may omit terminal frames or remain open after completion.
 - Provider catalogue uses only explicitly named `Chat · ` templates, cloned into user-owned agents before use; subscription checks cover new sessions and follow-up messages. Why: shared templates must not expose other users' agents or bypass paid switching.
-- Greeting and transcript share AgentOrb states; prior persisted turns suppress repeat awakening. Why: the same character must represent the active conversation throughout.
+- Greeting and transcript share AgentOrb states; prior turns suppress repeat awakening. Why: consistent character.
 
 - Light chat follows `loving-bonds-app`; empty desktop chat is cinematic and isolated from mobile.
 - Localize English and Egyptian Arabic (`ar-eg`) through `useUserLang()`.
+- Public landing and time-bound promotion rules: see src/pages/marketing/AGENTS.md. Why: consistent safe public entry.
 - Snapshots use `#snapshot-preview`; never write into `#root` before hydration.
 - Lazy-load browser-only libraries; read `localStorage` only in effects.
 

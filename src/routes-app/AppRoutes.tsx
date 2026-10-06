@@ -57,7 +57,6 @@ import {
   McpCallbackPage,
   AIPersonalizationPage,
   MemoryPage,
-  TasksPage,
   SettingsSupportPage,
   SettingsHelpPage,
   SettingsContactPage,
@@ -76,11 +75,10 @@ import {
   PricingPage,
   LegalPage,
   RestorePurchasePage,
-  NotFoundPage,
+  MegsyLandingPage,
   SplashTestPage,
   AgentsPage,
   AgentNewPage,
-  AgentTasksPage,
 } from "./lazyPages";
 
 const toChat = <RetiredRedirect to="/chat" />;
@@ -262,15 +260,8 @@ export const AppRoutes = ({ currentUserId }: { currentUserId: string | null }) =
         </ProtectedRoute>
       }
     />
-    <Route
-      path="/tasks/life"
-      element={
-        <ProtectedRoute>
-          <TasksPage />
-        </ProtectedRoute>
-      }
-    />
-    <Route path="/tasks" element={<ProtectedRoute><AgentTasksPage /></ProtectedRoute>} />
+    <Route path="/tasks" element={<Navigate to="/agents" replace />} />
+    <Route path="/tasks/*" element={<Navigate to="/agents" replace />} />
     <Route path="/settings/knowledge" element={<Navigate to="/settings/memory" replace />} />
 
     <Route
@@ -467,7 +458,8 @@ export const AppRoutes = ({ currentUserId }: { currentUserId: string | null }) =
     <Route path="/legal/*" element={<Navigate to="/privacy" replace />} />
 
     {/* ── Legacy aliases — everything retired now redirects ──── */}
-    <Route path="/landing" element={toChat} />
+    <Route path="/landing" element={<MegsyLandingPage />} />
+    <Route path="/ar-eg" element={<MegsyLandingPage arabic />} />
     <Route path="/showcase" element={toChat} />
     <Route path="/test" element={<SplashTestPage />} />
     {/* Hidden internal agent sandbox — not linked anywhere. */}
@@ -549,6 +541,6 @@ export const AppRoutes = ({ currentUserId }: { currentUserId: string | null }) =
     <Route path="/settings/help" element={<Navigate to="/settings/support/help" replace />} />
 
     {/* ── Anything else is a real 404, not a soft-404 chat page ── */}
-    <Route path="*" element={<NotFoundPage />} />
+    <Route path="*" element={<Navigate to="/landing" replace />} />
   </>
 );
