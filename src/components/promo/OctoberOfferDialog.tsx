@@ -44,7 +44,7 @@ export default function OctoberOfferDialog() {
         <div className="october-sheet-copy">
           <div className="october-sheet-eyebrow">
             <span>{ar ? "٦ أكتوبر 🇪🇬" : "OCTOBER 6 🇪🇬"}</span>
-            <button type="button" className="october-sheet-close" onClick={close} aria-label={ar ? "إغلاق" : "Close"}><X size={16} /></button>
+            <button type="button" className="october-sheet-close" onClick={close} aria-label={ar ? "تخطي الإعلان" : "Dismiss announcement"}><X size={16} /></button>
           </div>
           <SheetTitle className="october-sheet-title">{ar ? "يوم النصر… وهديتك وصلت" : "Victory day — your gift is here"}</SheetTitle>
           <SheetDescription className="october-sheet-description">{ar ? "٢٤ ساعة كل حاجة مجانية وبلا حدود. عدا الصور والفيديو." : "24 hours, everything free and unlimited. Except images and video."}</SheetDescription>
