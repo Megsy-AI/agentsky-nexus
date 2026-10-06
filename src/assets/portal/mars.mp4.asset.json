@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "asset_id": "e71b3edd-97d3-4ecc-b302-1760022298ac",
+  "asset_id": "d8c71b33-563d-492d-96c9-463d45e74954",
   "project_id": "bf7e7200-5e7d-4b26-b5d0-096b0051b65a",
-  "url": "/__l5e/assets-v1/e71b3edd-97d3-4ecc-b302-1760022298ac/mars.mp4",
-  "r2_key": "a/v1/bf7e7200-5e7d-4b26-b5d0-096b0051b65a/e71b3edd-97d3-4ecc-b302-1760022298ac/mars.mp4",
-  "original_filename": "mars.mp4",
-  "size": 5558213,
-  "content_type": "video/mp4",
-  "created_at": "2026-10-06T00:53:37Z"
+  "url": "/__l5e/assets-v1/d8c71b33-563d-492d-96c9-463d45e74954/mars.webm",
+  "r2_key": "a/v1/bf7e7200-5e7d-4b26-b5d0-096b0051b65a/d8c71b33-563d-492d-96c9-463d45e74954/mars.webm",
+  "original_filename": "mars.webm",
+  "size": 184868,
+  "content_type": "video/webm",
+  "created_at": "2026-10-06T01:10:00Z"
 }

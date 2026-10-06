@@ -9,6 +9,9 @@
 }
 .megsy-public { overflow-x: clip; background: hsl(var(--background)); color: hsl(var(--foreground)); letter-spacing: 0; }
 .megsy-public h1,.megsy-public h2,.megsy-public h3 { letter-spacing: 0; }
+.megsy-public button.bg-primary,.megsy-october-dialog button.bg-primary { background: hsl(var(--foreground))!important; color: hsl(var(--background))!important; border: 1px solid hsl(var(--border)); box-shadow:none!important; }
+.megsy-public button.bg-primary::before,.megsy-public button.bg-primary::after,.megsy-october-dialog button.bg-primary::before,.megsy-october-dialog button.bg-primary::after { content:none!important; }
+.megsy-october-dialog { background:hsl(var(--card))!important; color:hsl(var(--card-foreground))!important; opacity:1!important; border-radius:8px!important; max-height:90dvh; overflow-y:auto!important; }
 .megsy-experience { position: relative; height: min(940px,92svh); min-height: 640px; overflow: hidden; background: var(--portal-background); color: var(--portal-foreground); }
 .megsy-space-background,.megsy-space-shade,.megsy-portal-canvas,.megsy-space-preloader,.megsy-space-preloader video { position:absolute; inset:0; width:100%; height:100%; }
 .megsy-space-background,.megsy-space-preloader video { object-fit:cover; }
@@ -81,7 +84,7 @@
 @media(min-width:1600px) { .megsy-planet-content h1 { font-size:230px; } .megsy-portal-wrap { width:340px; } }
 @media(max-width:1100px) { .megsy-planet-content h1 { font-size:130px; } .megsy-space-facts { width:280px; } }
 @media(max-width:700px) {
-  .megsy-experience { min-height:660px; height:92svh; }
+  .megsy-experience { min-height:540px; height:92svh; }
   .megsy-space-header { inset:20px 20px auto; gap:12px; }
   .megsy-space-header nav { gap:12px; } .megsy-space-header nav>a { display:none; }
   .megsy-space-wordmark { font-size:20px; }
