@@ -5,19 +5,30 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpRight, X } from "lucide-react";
 import { isOctoberOfferActive, OCTOBER_OFFER_END } from "@/lib/octoberOffer";
 import artwork from "@/assets/october-celebration.png.asset.json";
+import { getAuthState, subscribeAuthState } from "@/lib/authStore";
+
+const dismissalKey = "megsy-october-6-2026-auth-sheet-seen";
 
 export default function OctoberOfferDialog() {
   const ar = useUserLang() === "ar-eg";
   const [open, setOpen] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   useEffect(() => {
-    const key = "megsy-october-6-2026-sheet-seen";
+    const unsubscribe = subscribeAuthState((state) => setAuthenticated(state.resolved && state.authenticated));
+    const state = getAuthState();
+    setAuthenticated(state.resolved && state.authenticated);
+    return () => { unsubscribe(); };
+  }, []);
+  useEffect(() => {
+    setOpen(false);
+    if (!authenticated) return;
     if (!isOctoberOfferActive()) return;
-    try { if (!localStorage.getItem(key)) setOpen(true); } catch { setOpen(true); }
+    try { if (!localStorage.getItem(dismissalKey)) setOpen(true); } catch { setOpen(true); }
     const timer = setTimeout(() => setOpen(false), Math.max(0, OCTOBER_OFFER_END - Date.now()));
     return () => clearTimeout(timer);
-  }, []);
-  const close = () => { setOpen(false); try { localStorage.setItem("megsy-october-6-2026-sheet-seen", "1"); } catch {} };
-  return <Sheet open={open} onOpenChange={(v) => { if (!v) close(); }}>
+  }, [authenticated]);
+  const close = () => { setOpen(false); try { localStorage.setItem(dismissalKey, "1"); } catch {} };
+  return <Sheet open={authenticated && open} onOpenChange={(v) => { if (!v) close(); }}>
     <SheetContent side="bottom" className="megsy-october-sheet" dir={ar ? "rtl" : "ltr"} data-no-translate>
       <div className="october-sheet-handle" aria-hidden="true" />
       <div className="october-sheet-inner">
