@@ -1,6 +1,7 @@
 # Megsy — roadmap
 
 ## Current request (October 6, 2026)
+- [ ] Replace October announcement with a clean bottom sheet using the uploaded artwork; hide Microsoft and require Welcome → authentication → Chat for guests.
 - [x] Redesign Agents in English and wire guided creation through the main chat with an explicit proposal approval.
 - [x] Hide Tasks page from navigation and direct page entry without deleting reminder data.
 - [x] Audit cleanup candidates and remove five confirmed unused modules; preserve uncertain/shared dependencies.
