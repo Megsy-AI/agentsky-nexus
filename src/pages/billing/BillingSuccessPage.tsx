@@ -51,6 +51,27 @@ const BillingSuccessPage = () => {
     const kashierOrder = params.get("order");
 
     if (provider === "kashier" && kashierOrder) {
+      // Forward Kashier's signed redirect to the server in the background, then
+      // send the buyer straight into the app — activation happens server-side.
+      const redirectParams: Record<string, string> = {};
+      params.forEach((value, key) => {
+        if (key !== "provider" && key !== "order") redirectParams[key] = value;
+      });
+      const paymentStatus = (redirectParams.paymentStatus || "").toUpperCase();
+      if (redirectParams.signature) {
+        void supabase.functions
+          .invoke("kashier-webhook", { body: { type: "redirect", params: redirectParams } })
+          .catch(() => undefined);
+      }
+      clearAbandonedCheckout();
+      if (paymentStatus && paymentStatus !== "SUCCESS") {
+        navigate("/pricing", { replace: true });
+      } else {
+        navigate("/?payment=success", { replace: true });
+      }
+      return;
+    }
+    if (false as boolean) {
       let cancelled = false;
       const poll = async (attempt = 0) => {
         if (cancelled) return;

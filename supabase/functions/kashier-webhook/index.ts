@@ -111,12 +111,20 @@ Deno.serve(async (request) => {
         ? "failed"
         : "pending";
 
+  // Keep checkout metadata (interval, sku, trial) that fulfilment reads from raw.
+  const { data: existing } = await admin
+    .from("kashier_orders")
+    .select("raw")
+    .eq("order_id", orderId)
+    .maybeSingle();
+  const prevRaw = (existing?.raw && typeof existing.raw === "object" ? existing.raw : {}) as Record<string, unknown>;
+
   const { data: updated, error } = await admin
     .from("kashier_orders")
     .update({
       status: nextStatus,
       kashier_ref: String(data.transactionId ?? data.kashierOrderId ?? "") || null,
-      raw: event,
+      raw: { ...prevRaw, ...event, interval: prevRaw.interval, sku: prevRaw.sku, trial_days: prevRaw.trial_days },
       updated_at: new Date().toISOString(),
     })
     .eq("order_id", orderId)
