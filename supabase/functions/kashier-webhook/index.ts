@@ -41,14 +41,24 @@ function safeEqual(a: string, b: string) {
   return difference === 0;
 }
 
-function buildSignedQuery(data: Record<string, unknown>) {
-  const keys = Array.isArray(data.signatureKeys)
+function signedKeys(data: Record<string, unknown>) {
+  return Array.isArray(data.signatureKeys)
     ? (data.signatureKeys as unknown[])
         .filter((key): key is string => typeof key === "string")
         .sort()
     : [];
-  if (!keys.length) return null;
-  return keys.map((key) => `${key}=${encodeURIComponent(String(data[key] ?? ""))}`).join("&");
+}
+
+/** Kashier docs sign the raw (unencoded) string; older code encoded values. Accept both. */
+async function matchesSignature(secret: string, pairs: Array<[string, unknown]>, signature: string) {
+  if (!signature || !pairs.length) return false;
+  const raw = pairs.map(([k, v]) => `${k}=${String(v ?? "")}`).join("&");
+  const encoded = pairs.map(([k, v]) => `${k}=${encodeURIComponent(String(v ?? ""))}`).join("&");
+  const sig = signature.toLowerCase();
+  for (const candidate of [raw, encoded]) {
+    if (safeEqual((await hmacHex(secret, candidate)).toLowerCase(), sig)) return true;
+  }
+  return false;
 }
 
 Deno.serve(async (request) => {
@@ -69,14 +79,25 @@ Deno.serve(async (request) => {
     return json({ error: "invalid json" }, 400);
   }
 
-  const data = (event.data ?? {}) as Record<string, unknown>;
-  const signature = request.headers.get("x-kashier-signature")?.trim() ?? "";
-  const signedQuery = buildSignedQuery(data);
-  if (!signature || !signedQuery) return json({ error: "missing signature" }, 401);
-
-  const expected = await hmacHex(paymentKey, signedQuery);
-  if (!safeEqual(expected.toLowerCase(), signature.toLowerCase())) {
-    return json({ error: "invalid signature" }, 401);
+  let data: Record<string, unknown>;
+  if (event.type === "redirect" && event.params && typeof event.params === "object") {
+    // The buyer's browser forwards Kashier's signed redirect query in the background.
+    // The signature (made with our secret key) is the proof, not the browser.
+    const params = event.params as Record<string, unknown>;
+    const pairs = Object.entries(params).filter(([k]) => k !== "signature" && k !== "mode");
+    if (!(await matchesSignature(paymentKey, pairs, String(params.signature ?? "").trim()))) {
+      console.error("kashier redirect: invalid signature", params.merchantOrderId);
+      return json({ error: "invalid signature" }, 401);
+    }
+    data = { ...params, status: params.paymentStatus };
+  } else {
+    data = (event.data ?? {}) as Record<string, unknown>;
+    const signature = request.headers.get("x-kashier-signature")?.trim() ?? "";
+    const pairs = signedKeys(data).map((k) => [k, data[k]] as [string, unknown]);
+    if (!(await matchesSignature(paymentKey, pairs, signature))) {
+      console.error("kashier webhook: invalid signature", data.merchantOrderId, event.event);
+      return json({ error: "invalid signature" }, 401);
+    }
   }
 
   const orderId = String(data.merchantOrderId ?? data.orderId ?? "");
@@ -90,19 +111,32 @@ Deno.serve(async (request) => {
         ? "failed"
         : "pending";
 
+  // Keep checkout metadata (interval, sku, trial) that fulfilment reads from raw.
+  const { data: existing } = await admin
+    .from("kashier_orders")
+    .select("raw")
+    .eq("order_id", orderId)
+    .maybeSingle();
+  const prevRaw = (existing?.raw && typeof existing.raw === "object" ? existing.raw : {}) as Record<string, unknown>;
+
   const { data: updated, error } = await admin
     .from("kashier_orders")
     .update({
       status: nextStatus,
       kashier_ref: String(data.transactionId ?? data.kashierOrderId ?? "") || null,
-      raw: event,
+      raw: { ...prevRaw, ...event, interval: prevRaw.interval, sku: prevRaw.sku, trial_days: prevRaw.trial_days },
       updated_at: new Date().toISOString(),
     })
     .eq("order_id", orderId)
+    .neq("status", "paid")
     .select("id, status, amount, currency, credits, plan, user_id")
     .maybeSingle();
 
-  if (error) return json({ error: error.message }, 500);
+  if (error) {
+    console.error("kashier order update failed", orderId, error.message);
+    return json({ error: error.message }, 500);
+  }
+  console.log("kashier order", orderId, status, "->", updated?.status ?? "unchanged");
 
   // The browser copy of CompletePayment only fires when the buyer actually
   // lands back on the success page. This server copy is authoritative and
