@@ -1,6 +1,7 @@
 # Megsy — roadmap
 
 ## Current request (October 6, 2026)
+- [x] Restrict the October announcement to authenticated sessions; Welcome and registration never show it.
 - [x] Replace October announcement with a clean bottom sheet using the uploaded artwork; hide Microsoft and guard Chat aliases. Verified guest /chat → Welcome → /auth, no Microsoft button, and phone/desktop layout.
 - [x] Redesign Agents in English and wire guided creation through the main chat with an explicit proposal approval.
 - [x] Hide Tasks page from navigation and direct page entry without deleting reminder data.
