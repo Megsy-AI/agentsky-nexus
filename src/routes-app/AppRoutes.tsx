@@ -88,12 +88,12 @@ const toPricing = <RetiredRedirect to="/pricing" />;
 export const AppRoutes = ({ currentUserId }: { currentUserId: string | null }) => (
   <>
     {/* ── Entry ──────────────────────────────────────────────── */}
-    <Route path="/" element={<ChatPage />} />
-    <Route path="/chat" element={<ChatPage />} />
+    <Route path="/" element={<ProtectedRoute guestEntry="/welcome"><ChatPage /></ProtectedRoute>} />
+    <Route path="/chat" element={<ProtectedRoute guestEntry="/welcome"><ChatPage /></ProtectedRoute>} />
     <Route path="/agents" element={<ProtectedRoute><AgentsPage /></ProtectedRoute>} />
     <Route path="/agents/new" element={<ProtectedRoute><AgentNewPage /></ProtectedRoute>} />
     <Route path="/welcome" element={<WelcomePage />} />
-    <Route path="/index" element={<ChatPage />} />
+    <Route path="/index" element={<ProtectedRoute guestEntry="/welcome"><ChatPage /></ProtectedRoute>} />
     <Route path="/share/:shareId" element={<SharedChatPage />} />
 
     {/* ── Auth hub — one page, animated inner views ──────────── */}

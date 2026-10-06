@@ -1,23 +1,35 @@
 import { useEffect, useState } from "react";
 import { useUserLang } from "@/lib/authI18n";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { ArrowUpRight, X } from "lucide-react";
 import { isOctoberOfferActive, OCTOBER_OFFER_END } from "@/lib/octoberOffer";
-import egypt from "@/assets/egypt-october.jpg";
+import artwork from "@/assets/october-celebration.png.asset.json";
 
 export default function OctoberOfferDialog() {
   const ar = useUserLang() === "ar-eg";
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    const key = "megsy-october-6-2026-seen";
+    const key = "megsy-october-6-2026-sheet-seen";
     if (!isOctoberOfferActive()) return;
     try { if (!localStorage.getItem(key)) setOpen(true); } catch { setOpen(true); }
     const timer = setTimeout(() => setOpen(false), Math.max(0, OCTOBER_OFFER_END - Date.now()));
     return () => clearTimeout(timer);
   }, []);
-  const close = () => { setOpen(false); try { localStorage.setItem("megsy-october-6-2026-seen", "1"); } catch {} };
-  return <Dialog open={open} onOpenChange={(v) => { if (!v) close(); }}><DialogContent className="megsy-october-dialog max-w-lg overflow-hidden p-0" dir={ar ? "rtl" : "ltr"} data-no-translate>
-    <img src={egypt} alt={ar ? "علم مصر فوق القاهرة والنيل — تصميم احتفالي" : "Egyptian flag over Cairo and the Nile — celebratory artwork"} width={1536} height={1024} className="aspect-[16/9] w-full object-cover" />
-    <div className="p-6"><p className="mb-2 text-xs font-medium text-muted-foreground">{ar ? "من مصر، لكل العالم · ٦ أكتوبر" : "From Egypt, to everyone · October 6"}</p><DialogTitle className="text-2xl">{ar ? "يوم نصرنا… ويومك مع ميغسي" : "A day of pride. A day on us."}</DialogTitle><DialogDescription className="mt-4 text-sm leading-relaxed">{ar ? "في ذكرى نصر أكتوبر، بنحتفل بروح مصر اللي عرفت تعبر وتحقق حلمها. ومن قلب القاهرة، ميغسي بيهدي الجميع ٢٤ ساعة من الشات والبحث والكتابة والكود واستخدام الوكلاء مجانًا، من غير حدود استخدام من ميغسي." : "Celebrating Egypt’s October victory, Megsy is opening chat, research, writing, coding and non-media agents to everyone for 24 hours, with no Megsy usage quota."}</DialogDescription><p className="mt-3 text-sm font-medium">{ar ? "الصور والفيديوهات مش ضمن العرض، وبتفضل بشروطها وأسعارها العادية." : "Images and videos are excluded; their normal prices and access rules still apply."}</p><p className="mt-3 text-xs text-muted-foreground">{ar ? "العرض ينتهي ٧ أكتوبر ٢٠٢٦، الساعة ٣:٥٢ صباحًا بتوقيت القاهرة. تسجيل الدخول مطلوب؛ توفر الخدمات عند المزود يظل ساريًا." : "Ends October 7, 2026 at 3:52 a.m. Cairo time. Sign-in required; provider availability still applies."}</p><Button variant="neutral" className="mt-5 w-full" onClick={close}>{ar ? "يلا نبدأ" : "Let’s get started"}</Button></div>
-  </DialogContent></Dialog>;
+  const close = () => { setOpen(false); try { localStorage.setItem("megsy-october-6-2026-sheet-seen", "1"); } catch {} };
+  return <Sheet open={open} onOpenChange={(v) => { if (!v) close(); }}>
+    <SheetContent side="bottom" className="megsy-october-sheet" dir={ar ? "rtl" : "ltr"} data-no-translate>
+      <div className="october-sheet-handle" aria-hidden="true" />
+      <div className="october-sheet-inner">
+        <img src={artwork.url} alt={ar ? "تصميم ذكرى ٦ أكتوبر: أنور السادات وعبد الفتاح السيسي وعلم مصر والقاهرة" : "October 6 commemorative artwork with Anwar Sadat, Abdel Fattah el-Sisi, Egypt’s flag and Cairo"} width={1365} height={768} className="october-sheet-artwork" />
+        <div className="october-sheet-copy">
+          <div className="october-sheet-eyebrow"><span>{ar ? "٦ أكتوبر · يوم العبور" : "OCTOBER 6 · A DAY TO CELEBRATE"}</span><Button variant="ghost" size="icon-sm" onClick={close} aria-label={ar ? "إغلاق الإعلان" : "Dismiss announcement"}><X size={18} /></Button></div>
+          <SheetTitle className="october-sheet-title">{ar ? "يوم نفتخر بيه. وهدية ليك." : "A day of pride. A gift for you."}</SheetTitle>
+          <SheetDescription className="october-sheet-description">{ar ? "بنحتفل بذكرى نصر أكتوبر معاك: ٢٤ ساعة من الشات والبحث والكتابة والكود والوكلاء مجانًا للجميع، بدون حدود استخدام من ميغسي." : "Celebrate Egypt’s October victory with 24 hours of free chat, research, writing, coding and non-media agents for everyone. No Megsy usage quota."}</SheetDescription>
+          <p className="october-sheet-exclusion">{ar ? "الصور والفيديوهات خارج العرض، بشروطها وأسعارها المعتادة." : "Images and videos keep their usual prices and access rules."}</p>
+          <div className="october-sheet-footer"><p>{ar ? "حتى ٧ أكتوبر، ٣:٥٢ صباحًا بتوقيت القاهرة. تسجيل الدخول وتوفر خدمات المزود مطلوبان." : "Until October 7, 3:52 a.m. Cairo time. Sign-in and provider availability apply."}</p><Button variant="neutral" onClick={close}>{ar ? "يلا نبدأ" : "Let’s begin"}<ArrowUpRight size={16} /></Button></div>
+        </div>
+      </div>
+    </SheetContent>
+  </Sheet>;
 }

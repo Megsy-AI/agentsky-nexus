@@ -238,7 +238,7 @@ export const InternalLinkInterceptor = () => {
   return null;
 };
 
-export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+export const ProtectedRoute = ({ children, guestEntry }: { children: React.ReactNode; guestEntry?: string }) => {
   bootstrapAuth();
   const [state, setState] = useState(getAuthState);
 
@@ -264,6 +264,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   if (!state.authenticated) {
+    if (guestEntry) return <Navigate to={guestEntry} replace />;
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
     const authPath = pathForZone("/auth", location.pathname);
     return <Navigate to={`${authPath}?redirect=${encodeURIComponent(returnTo)}`} replace />;
