@@ -68,7 +68,8 @@ export async function handleAgent(
     if (!keys.length) return out({ error: "no_capacity" }, 503);
     const cost = 1;
     const opKey = String(body?.request_id || crypto.randomUUID());
-    const spent = await db.rpc("charge_credits_once", {
+    const isPromo = Date.now() >= 1791247929000 && Date.now() <= 1791334329000;
+    const spent = isPromo ? { data: { success: true } } : await db.rpc("charge_credits_once", {
       p_operation_key: opKey,
       p_user_id: userId,
       p_amount: cost,
@@ -79,6 +80,7 @@ export async function handleAgent(
       return out({ error: "insufficient_credits", required_credits: cost, message: "You need at least 1 credit to start an agent task." }, 402);
     }
     const refund = async () => {
+      if (isPromo) return;
       await db.rpc("refund_credits_once", { p_operation_key: opKey, p_reason: "Refund for failed agent start" });
     };
     let lastError = "provider_error";

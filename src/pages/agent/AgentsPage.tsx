@@ -36,7 +36,7 @@ export function AgentsPage() {
           <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
             {filtered.map((a) => {
               const active = sessions.filter((s) => s.agentId === a.id && s.status === "running").length;
-              const locked = !a.isDefault && tier !== "pro";
+              const locked = !a.isDefault && tier !== "pro" && !(Date.now() >= 1791247929000 && Date.now() <= 1791334329000);
               return <li key={a.id} className="flex items-center gap-4 px-4 py-4 transition-colors hover:bg-muted/40" data-agent-color={a.color}>
                 <AgentOrb size={44} color={a.color} state={active ? "tool" : "idle"} />
                 <div className="min-w-0 flex-1">
