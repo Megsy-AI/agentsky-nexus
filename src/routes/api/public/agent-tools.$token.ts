@@ -78,6 +78,20 @@ const TOOLS = [
       required: ["steps"],
     },
   },
+  {
+    name: "propose_agent",
+    description: "Suggest a specialized agent configuration for a specific task. Read-only: does not create the agent.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "Suggested name" },
+        description: { type: "string", description: "Short description" },
+        prompt: { type: "string", description: "System prompt / instructions" },
+        color: { type: "string", enum: ["aurora", "ocean", "ember", "mint", "sun", "rose", "mono"] },
+      },
+      required: ["name", "prompt"],
+    },
+  },
 ];
 
 TOOLS.push({
@@ -153,6 +167,8 @@ async function runTool(userId: string, origin: string, name: string, args: any, 
       const mime = String(args?.mime_type || "application/octet-stream");
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const path = `${userId}/${crypto.randomUUID()}/${name}`;
+    case "propose_agent":
+      return { text: `Proposed agent "${args?.name}" is ready for review.`, payload: { type: "megsy.agent_proposal", ...args } };
       const up = await supabaseAdmin.storage.from("agent-files").upload(path, bytes, { contentType: mime, upsert: false });
       if (up.error) return { text: `Could not save the file: ${up.error.message}` };
       const signed = await supabaseAdmin.storage.from("agent-files").createSignedUrl(path, 60 * 60 * 24 * 30, { download: name });
