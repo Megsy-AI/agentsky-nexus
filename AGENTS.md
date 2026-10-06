@@ -52,7 +52,7 @@ used, `FOR UPDATE SKIP LOCKED`).
 ## 4. Front-end rules
 
 - Media runs require a live paid-plan check in both authenticated media routes and signed MCP tools; Higgsfield clones only a configured Hypit template, never substitutes a harness. Why: UI locks alone do not prevent free media spending or misrepresent the requested agent.
-- Auth welcome, email/password, OTP and reset share one character shell and existing handlers. Why: keep registration and recovery consistent.
+- Auth reuses existing handlers; Chat aliases use ProtectedRoute with guest Welcome before mount. Why: prevent guest chat exposure.
 
 - Agent pages and guided creation use original ChatPage/AppSidebar; see src/lib/agentsky/AGENTS.md. Why: one transcript and explicit approval.
 - AgentSky turn subscriptions stop on fresh session.status_idle/session.error events, with persisted-event reconciliation and baseline IDs. Why: the standing SSE feed may omit terminal frames or remain open after completion.
