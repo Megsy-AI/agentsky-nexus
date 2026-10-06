@@ -379,7 +379,7 @@ const PricingPage = () => {
   const proPlan = PLANS.find((p) => p.tier === "pro");
 
   // ─── Mobile-only pricing showcase ──
-  if (proPlan) {
+  if (proPlan && isMobile) {
     return (
       <>
         <SEOHead
